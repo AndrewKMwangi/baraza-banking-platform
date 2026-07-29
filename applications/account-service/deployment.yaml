@@ -1,36 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: customer-service
-
+  namespace: baraza-banking
 spec:
   replicas: 1
-
   selector:
     matchLabels:
       app: customer-service
-
   template:
     metadata:
       labels:
         app: customer-service
-
     spec:
       containers:
       - name: customer-service
-        image: customer-service:v2
-        imagePullPolicy: Never
+        image: customer-service:v1
+        imagePullPolicy: IfNotPresent
 
         ports:
         - containerPort: 8080
 
         env:
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:postgresql://host.minikube.internal:5432/customerdb"
+          value: jdbc:postgresql://postgres:5432/baraza_db
 
         - name: SPRING_DATASOURCE_USERNAME
-          value: "postgres"
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
 
         - name: SPRING_DATASOURCE_PASSWORD
-          value: "postgres"
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD

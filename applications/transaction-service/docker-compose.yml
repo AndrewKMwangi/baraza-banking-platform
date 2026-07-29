@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: baraza-postgres
+    restart: always
+
+    environment:
+      POSTGRES_DB: baraza_db
+      POSTGRES_USER: baraza
+      POSTGRES_PASSWORD: baraza123
+
+    ports:
+      - "5432:5432"
+
+  customer-service:
+    build: .
+    container_name: customer-service
+
+    depends_on:
+      - postgres
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/baraza_db
+      SPRING_DATASOURCE_USERNAME: baraza
+      SPRING_DATASOURCE_PASSWORD: baraza123
+
+    ports:
+      - "8080:8080"
