@@ -23,7 +23,7 @@ spec:
 
         env:
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://postgres:5432/baraza_db
+          value: jdbc:postgresql://postgres:5432//baraza_core
 
         - name: SPRING_DATASOURCE_USERNAME
           valueFrom:
