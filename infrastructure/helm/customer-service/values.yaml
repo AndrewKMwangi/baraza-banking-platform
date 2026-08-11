@@ -1,0 +1,96 @@
+replicaCount: 1
+
+image:
+  repository: customer-service
+  pullPolicy: Never
+  tag: "v2"
+
+env:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/baraza_core"
+
+  SPRING_DATASOURCE_USERNAME:
+    secretKeyRef:
+      name: postgres-secret
+      key: POSTGRES_USER
+
+  SPRING_DATASOURCE_PASSWORD:
+    secretKeyRef:
+      name: postgres-secret
+      key: POSTGRES_PASSWORD
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  automount: true
+  annotations: {}
+  name: default
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  name: customer-ingress
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: customer.baraza.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      sectionName: http
+  hostnames:
+    - customer.baraza.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+livenessProbe:
+  tcpSocket:
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 10
+
+readinessProbe:
+  tcpSocket:
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+autoscaling:
+  enabled: false
+
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
