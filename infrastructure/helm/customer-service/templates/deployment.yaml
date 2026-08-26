@@ -60,6 +60,12 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.env.SPRING_DATASOURCE_PASSWORD.secretKeyRef.name }}
                   key: {{ .Values.env.SPRING_DATASOURCE_PASSWORD.secretKeyRef.key }}
+           
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

@@ -5,7 +5,7 @@ replicaCount: 2
 image:
   repository: customer-service
   pullPolicy: IfNotPresent
-  tag: "v2"
+  tag: "v3"
 
 service:
   type: ClusterIP
@@ -30,6 +30,13 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
+
+startupProbe:
+  tcpSocket:
+    port: 8080
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 30
 
 livenessProbe:
   tcpSocket:
