@@ -1,4 +1,4 @@
-# Baraza Banking Platform
+# Baraza Banking Platform - By Andrew Mwangi
 
 > **Cloud-Native Core Banking Platform built with Spring Boot, Kubernetes, Helm, Terraform, GitOps, and modern Platform Engineering practices.**
 
@@ -9,7 +9,7 @@
 - [1. Overview](#1-overview)
 - [2. Project Goals](#2-project-goals)
 - [3. Platform Architecture](#3-platform-architecture)
-- [4. Core Banking Services](#4-core-banking-services)
+- [4. Core Banking Services](#5-core-banking-services)
 - [5. Technology Stack](#5-technology-stack)
 - [6. Repository Structure](#6-repository-structure)
 - [7. Application Architecture](#7-application-architecture)
