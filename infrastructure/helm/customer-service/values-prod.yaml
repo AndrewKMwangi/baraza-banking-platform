@@ -36,7 +36,7 @@ startupProbe:
     port: 8080
   periodSeconds: 10
   timeoutSeconds: 2
-  failureThreshold: 30
+  failureThreshold: 120
 
 livenessProbe:
   tcpSocket:
