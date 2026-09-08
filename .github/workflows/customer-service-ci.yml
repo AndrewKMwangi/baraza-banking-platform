@@ -40,3 +40,6 @@ jobs:
 
       - name: Run tests
         run: ./mvnw test
+
+      - name: Package application
+        run: ./mvnw package
