@@ -32,5 +32,11 @@ jobs:
       - name: Ensure Maven wrapper is executable
         run: chmod +x mvnw
 
+      - name: Inspect Maven wrapper
+        run: |
+          ls -l mvnw
+          file mvnw
+          head -n 1 mvnw
+
       - name: Run tests
         run: ./mvnw test
