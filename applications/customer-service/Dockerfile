@@ -7,10 +7,8 @@ RUN useradd -r -u 1001 -g root baraza
 
 WORKDIR /app
 
-COPY target/customer-service-0.0.1-SNAPSHOT.jar app.jar
-
-# Give the application user ownership of the application directory
-RUN chown -R baraza:root /app
+# Copy the application and assign ownership in the same layer
+COPY --chown=1001:0 target/customer-service-0.0.1-SNAPSHOT.jar app.jar
 
 # Run the application as a non-root user
 USER 1001

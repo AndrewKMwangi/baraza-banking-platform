@@ -1,3 +1,5 @@
 # Docker/container image archives
 *.tar
 *.tar.gz
+# Local troubleshooting logs
+minikube-debug.log

@@ -2,6 +2,7 @@ package com.baraza.customer_service.service;
 
 import com.baraza.customer_service.entity.Customer;
 import com.baraza.customer_service.repository.CustomerRepository;
+import com.baraza.customer_service.service.CustomerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
