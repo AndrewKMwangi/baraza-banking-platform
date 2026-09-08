@@ -43,3 +43,6 @@ jobs:
 
       - name: Package application
         run: ./mvnw package
+
+      - name: Build Docker image
+        run: docker build -t customer-service:ci .
