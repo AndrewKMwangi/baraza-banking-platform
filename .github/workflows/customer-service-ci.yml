@@ -58,6 +58,6 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./applications/customer-service
           push: true
           tags: ghcr.io/andrewkmwangi/customer-service:${{ github.sha }}
