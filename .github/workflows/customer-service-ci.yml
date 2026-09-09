@@ -60,4 +60,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/customer-service:${{ github.sha }}
+          tags: ghcr.io/andrewkmwangi/customer-service:${{ github.sha }}
