@@ -45,6 +45,6 @@ public class CustomerController {
 
         customerService.deleteCustomer(id);
 
-        return "Customer deleted successfully";
+        return "Customer deleted successfully - v2";
     }
 }
