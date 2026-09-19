@@ -1,38 +1,42 @@
-package com.baraza.customer_service.entity;
+package com.baraza.account.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.math.BigDecimal;
+
 @Entity
-public class Customer {
+public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "First name is required")
-    private String firstName;
+    @NotNull
+    private Long customerId;
 
-    @NotBlank(message = "Last name is required")
-    private String lastName;
-
-    @NotBlank(message = "Account number is required")
+    @NotBlank
     private String accountNumber;
 
-    @PositiveOrZero(message = "Balance cannot be negative")
-    private Double balance;
+    @NotBlank
+    private String accountType;
 
-    @NotBlank(message = "Currency is required")
+    @NotBlank
     private String currency;
 
-    @NotBlank(message = "Status is required")
+    @NotNull
+    @PositiveOrZero
+    private BigDecimal balance;
+
+    @NotBlank
     private String status;
 
-    public Customer() {
+    public Account() {
     }
 
     public Long getId() {
@@ -43,20 +47,12 @@ public class Customer {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public Long getCustomerId() {
+        return customerId;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public String getAccountNumber() {
@@ -67,12 +63,12 @@ public class Customer {
         this.accountNumber = accountNumber;
     }
 
-    public Double getBalance() {
-        return balance;
+    public String getAccountType() {
+        return accountType;
     }
 
-    public void setBalance(Double balance) {
-        this.balance = balance;
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
     }
 
     public String getCurrency() {
@@ -81,6 +77,14 @@ public class Customer {
 
     public void setCurrency(String currency) {
         this.currency = currency;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 
     public String getStatus() {
