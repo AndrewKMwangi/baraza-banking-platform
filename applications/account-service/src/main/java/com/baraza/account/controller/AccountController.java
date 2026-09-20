@@ -1,5 +1,6 @@
 package com.baraza.account.controller;
 
+import com.baraza.account.dto.AccountUpdateRequest;
 import com.baraza.account.entity.Account;
 import com.baraza.account.service.AccountService;
 import jakarta.validation.Valid;
@@ -35,9 +36,8 @@ public class AccountController {
     @PutMapping("/{id}")
     public Account updateAccount(
             @PathVariable Long id,
-            @Valid @RequestBody Account account) {
-
-        return accountService.updateAccount(id, account);
+            @Valid @RequestBody AccountUpdateRequest accountUpdateRequest) {
+        return accountService.updateAccount(id, accountUpdateRequest);
     }
 
     @DeleteMapping("/{id}")
