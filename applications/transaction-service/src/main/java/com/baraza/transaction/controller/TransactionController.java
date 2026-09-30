@@ -1,6 +1,7 @@
 package com.baraza.transaction.controller;
 
 import com.baraza.transaction.dto.TransactionRequest;
+import com.baraza.transaction.dto.TransactionStatusUpdateRequest;
 import com.baraza.transaction.entity.Transaction;
 import com.baraza.transaction.service.TransactionService;
 import jakarta.validation.Valid;
@@ -32,5 +33,15 @@ public class TransactionController {
     public Transaction createTransaction(
             @Valid @RequestBody TransactionRequest request) {
         return transactionService.createTransaction(request);
+    }
+
+    @PatchMapping("/{id}/status")
+    public Transaction updateTransactionStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody TransactionStatusUpdateRequest request) {
+
+        return transactionService.updateTransactionStatus(
+                id,
+                request.getStatus());
     }
 }
