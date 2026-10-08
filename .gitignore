@@ -3,3 +3,7 @@
 *.tar.gz
 # Local troubleshooting logs
 minikube-debug.log
+
+# Maven build output
+target/
+**/target/
