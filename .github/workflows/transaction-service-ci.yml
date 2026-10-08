@@ -55,9 +55,22 @@ jobs:
       - name: Package application
         run: ./mvnw package
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./applications/transaction-service
-          push: true
+          load: true
           tags: ghcr.io/andrewkmwangi/transaction-service:${{ github.sha }}
+
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/andrewkmwangi/transaction-service:${{ github.sha }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Push Docker image
+        run: docker push ghcr.io/andrewkmwangi/transaction-service:${{ github.sha }}
