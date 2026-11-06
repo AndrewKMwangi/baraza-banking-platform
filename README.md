@@ -1,1909 +1,496 @@
-# Baraza Banking Platform - By Andrew Mwangi
+# Baraza Banking Platform
+### Enterprise Banking Modernization | Cloud-Native Microservices | Platform Engineering
 
-> **Cloud-Native Core Banking Platform built with Spring Boot, Kubernetes, Helm, Terraform, GitOps, and modern Platform Engineering practices.**
+Baraza is an enterprise banking modernization programme focused on evolving an established production banking system from a legacy monolithic architecture into a secure, resilient, cloud-native microservices platform.
 
----
+The modernization builds on an existing Baraza banking system that has operated in production at microfinance institutions. The new platform is designed to preserve the banking domain's operational purpose while introducing clearer service boundaries, modern digital channels, independently deployable capabilities, and an automated cloud platform.
 
-## Table of Contents
-
-- [1. Overview](#1-overview)
-- [2. Project Goals](#2-project-goals)
-- [3. Platform Architecture](#3-platform-architecture)
-- [4. Core Banking Services](#5-core-banking-services)
-- [5. Technology Stack](#5-technology-stack)
-- [6. Repository Structure](#6-repository-structure)
-- [7. Application Architecture](#7-application-architecture)
-- [8. Containerization](#8-containerization)
-- [9. Kubernetes Platform](#9-kubernetes-platform)
-- [10. Helm](#10-helm)
-- [11. Environment Configuration](#11-environment-configuration)
-- [12. Database](#12-database)
-- [13. Networking](#13-networking)
-- [14. Health Checks and Reliability](#14-health-checks-and-reliability)
-- [15. Horizontal Pod Autoscaling](#15-horizontal-pod-autoscaling)
-- [16. Infrastructure as Code](#16-infrastructure-as-code)
-- [17. CI/CD](#17-cicd)
-- [18. GitOps and Argo CD](#18-gitops-and-argo-cd)
-- [19. Monitoring and Observability](#19-monitoring-and-observability)
-- [20. Security](#20-security)
-- [21. Local Development Environment](#21-local-development-environment)
-- [22. Running the Platform](#22-running-the-platform)
-- [23. Building the Applications](#23-building-the-applications)
-- [24. Building Docker Images](#24-building-docker-images)
-- [25. Deploying to Kubernetes](#25-deploying-to-kubernetes)
-- [26. Helm Deployment](#26-helm-deployment)
-- [27. GitOps Deployment](#27-gitops-deployment)
-- [28. Verification](#28-verification)
-- [29. Troubleshooting](#29-troubleshooting)
-- [30. Production Architecture](#30-production-architecture)
-- [31. Banking and Regulatory Considerations](#31-banking-and-regulatory-considerations)
-- [32. Disaster Recovery](#32-disaster-recovery)
-- [33. Development Workflow](#33-development-workflow)
-- [34. Platform Engineering Principles](#34-platform-engineering-principles)
-- [35. Current Project Status](#35-current-project-status)
-- [36. Roadmap](#36-roadmap)
-- [37. Future Improvements](#37-future-improvements)
-- [38. Documentation](#38-documentation)
-- [39. Contributing](#39-contributing)
-- [40. License](#40-license)
+This repository contains the application and platform engineering implementation for the modernized Baraza platform. The documentation describes the complete target banking ecosystem and serves as the technical blueprint for its progressive implementation.
 
 ---
 
-# 1. Overview
+## Contents
 
-Baraza Banking Platform is a cloud-native banking platform designed to demonstrate how a modern banking workload can be developed, containerized, deployed, operated, and scaled using modern DevOps and Platform Engineering practices.
+- [Platform Overview](#platform-overview)
+- [Modernization Vision](#modernization-vision)
+- [Enterprise Target Architecture](#enterprise-target-architecture)
+- [Banking Channels](#banking-channels)
+- [Banking Domain Capabilities](#banking-domain-capabilities)
+- [Financial Integrity and Control](#financial-integrity-and-control)
+- [Technology Stack](#technology-stack)
+- [Platform Engineering Architecture](#platform-engineering-architecture)
+- [Repository Structure](#repository-structure)
+- [Application Development](#application-development)
+- [Local Development and Verification](#local-development-and-verification)
+- [Production Deployment Direction](#production-deployment-direction)
+- [Security, Reliability, and Operations](#security-reliability-and-operations)
+- [Documentation](#documentation)
+- [Implementation Roadmap](#implementation-roadmap)
+- [Engineering Principles](#engineering-principles)
 
-The platform follows a microservices architecture and is designed around:
+---
 
-- Spring Boot
-- Java
-- PostgreSQL
-- Docker
-- Kubernetes
-- Helm
-- Terraform
-- GitOps
-- Argo CD
-- CI/CD
-- Monitoring and observability
-- Infrastructure as Code
-- Security and reliability practices
+## Platform Overview
 
-The project is intentionally designed not only as an application development project, but also as a **Platform Engineering learning and demonstration environment**.
+Baraza is designed as a complete banking ecosystem for microfinance institutions and other financial-service providers. It brings together:
 
-The goal is to demonstrate the complete lifecycle:
+- Customer onboarding, identity, and lifecycle management.
+- Account management and transaction processing.
+- Payment initiation and external payment-provider integration.
+- Deposit and withdrawal operations.
+- Internet and mobile banking channels.
+- Branch banking and teller operations.
+- Financial accounting, reconciliation, risk, compliance, and audit capabilities.
+- Cloud infrastructure, container orchestration, CI/CD, GitOps, and observability.
 
-```text
-Source Code
-     │
-     ▼
-Git
-     │
-     ▼
-CI/CD
-     │
-     ├── Build
-     ├── Test
-     ├── Package
-     └── Containerize
-            │
-            ▼
-      Container Registry
-            │
-            ▼
-         GitOps
-            │
-            ▼
-        Argo CD
-            │
-            ▼
-       Kubernetes
-            │
-     ┌──────┴───────┐
-     │              │
- Microservices   PostgreSQL
-     │
-     ▼
- End Users
+The architecture is domain-oriented. Each service owns a defined business capability and its authoritative data. Banking channels consume governed APIs; they do not implement core financial rules or directly manipulate account balances.
+
+The target platform is broader than the services currently represented in the repository. Capabilities are delivered incrementally against the architecture documented here.
+
+## Modernization Vision
+
+The modernization addresses the limitations of a legacy monolithic banking system by moving toward:
+
+1. **Domain separation:** isolate customer, account, transaction, payment, and operational responsibilities behind explicit service contracts.
+2. **Channel expansion:** provide consistent banking services through web, mobile, branch, and teller channels.
+3. **Financial integrity:** introduce controlled ledger postings, idempotent transaction processing, reconciliation, and auditable financial events.
+4. **Operational resilience:** design for failure isolation, controlled retries, recovery, observability, and tested operational procedures.
+5. **Secure access:** apply customer and workforce identity, authorization, least privilege, and audit controls throughout the platform.
+6. **Independent delivery:** automate application builds, container publishing, infrastructure provisioning, and Kubernetes deployments.
+7. **Cloud readiness:** define a production-oriented Kubernetes architecture with Amazon EKS as the intended AWS deployment environment.
+
+## Enterprise Target Architecture
+
+The following diagram presents the intended platform ecosystem and its principal relationships.
+
+```mermaid
+flowchart TB
+    subgraph Channels["Digital and Branch Channels"]
+        WEB["Internet Banking Web"]
+        MOBILE["Mobile Banking App"]
+        BRANCH["Branch Banking System"]
+        TELLERUI["Teller Interface"]
+    end
+
+    subgraph Edge["Access and Integration"]
+        WAF["Edge Protection / WAF"]
+        API["API Gateway"]
+        IAM["Identity and Access Management"]
+        BFF["Channel APIs"]
+    end
+
+    subgraph Banking["Banking Domain Capabilities"]
+        CUSTOMER["Customer and Onboarding"]
+        ACCOUNT["Account"]
+        TRANSACTION["Transaction Processing"]
+        PAYMENT["Payment"]
+        DEPOSIT["Deposit Operations"]
+        WITHDRAWAL["Withdrawal Operations"]
+        TELLER["Teller Operations"]
+        BRANCHOPS["Branch Operations"]
+        NOTIFICATION["Notification"]
+    end
+
+    subgraph Assurance["Financial Control and Assurance"]
+        LEDGER["General Ledger"]
+        RECON["Reconciliation"]
+        RISK["Fraud and Risk"]
+        KYC["KYC and Compliance"]
+        AUDIT["Audit Records"]
+    end
+
+    subgraph Platform["Data and Integration"]
+        EVENT["Event / Messaging Backbone"]
+        DATA["Service-owned Data Stores"]
+        PROVIDERS["External Payment and Identity Providers"]
+    end
+
+    WEB --> WAF
+    MOBILE --> WAF
+    BRANCH --> WAF
+    TELLERUI --> WAF
+    WAF --> API
+    API <--> IAM
+    API --> BFF
+    BFF --> CUSTOMER
+    BFF --> ACCOUNT
+    BFF --> TRANSACTION
+    BFF --> PAYMENT
+    BFF --> DEPOSIT
+    BFF --> WITHDRAWAL
+    BFF --> TELLER
+    BFF --> BRANCHOPS
+    CUSTOMER --> KYC
+    TRANSACTION --> ACCOUNT
+    TRANSACTION --> LEDGER
+    PAYMENT --> TRANSACTION
+    PAYMENT <--> PROVIDERS
+    DEPOSIT --> TRANSACTION
+    WITHDRAWAL --> TRANSACTION
+    TELLER --> TRANSACTION
+    BRANCHOPS --> TELLER
+    TRANSACTION --> RISK
+    Banking --> EVENT
+    EVENT --> NOTIFICATION
+    EVENT --> RECON
+    EVENT --> AUDIT
+    Banking --> DATA
+    Assurance --> DATA
 ```
 
----
+This is the target logical architecture. It does not imply that every capability must become an independently deployed microservice. Service boundaries are determined by domain ownership, consistency requirements, operational scale, and the need for independent evolution.
 
-# 2. Project Goals
+## Banking Channels
 
-The primary goals of the Baraza Banking Platform are to demonstrate:
-
-### Application Engineering
-
-- Microservice architecture
-- REST APIs
-- Spring Boot services
-- Java 21
-- Database integration
-- Service-to-service communication
-- Application health management
-
-### Containerization
-
-- Docker image creation
-- Multi-stage/container build practices
-- Minimal runtime images
-- Non-root containers
-- Image versioning
-- Container security
-
-### Kubernetes
-
-- Deployments
-- Services
-- Namespaces
-- ConfigMaps
-- Secrets
-- Ingress
-- Probes
-- Resource requests and limits
-- Horizontal Pod Autoscaling
-- Rolling deployments
-
-### Platform Engineering
-
-- Infrastructure as Code
-- Environment management
-- Reusable Helm charts
-- GitOps
-- Automated deployments
-- Observability
-- Reliability
-- Operational runbooks
-
-### Cloud Engineering
-
-The platform is designed so that the Kubernetes environment can eventually be deployed onto a cloud provider such as AWS.
-
----
-
-# 3. Platform Architecture
-
-The platform follows a layered architecture.
-
-```text
-┌───────────────────────────────────────────────────────────────┐
-│                         USERS / CLIENTS                       │
-└───────────────────────────────┬───────────────────────────────┘
-                                │
-                                ▼
-┌───────────────────────────────────────────────────────────────┐
-│                    INGRESS / API ENTRY                        │
-└───────────────────────────────┬───────────────────────────────┘
-                                │
-              ┌─────────────────┼─────────────────┐
-              │                 │                 │
-              ▼                 ▼                 ▼
-       Customer Service   Account Service   Transaction Service
-              │                 │                 │
-              └─────────────────┼─────────────────┘
-                                │
-                                ▼
-                      Notification Service
-                                │
-                                ▼
-┌───────────────────────────────────────────────────────────────┐
-│                         DATABASE                              │
-│                         PostgreSQL                            │
-└───────────────────────────────────────────────────────────────┘
-```
-
-The infrastructure layer sits underneath the application:
-
-```text
-Applications
-     │
-     ▼
-Kubernetes
-     │
-     ├── Deployments
-     ├── Services
-     ├── Ingress
-     ├── ConfigMaps
-     ├── Secrets
-     ├── HPA
-     └── Probes
-     │
-     ▼
-Helm
-     │
-     ▼
-GitOps / Argo CD
-     │
-     ▼
-Infrastructure
-     │
-     ▼
-Terraform
-```
-
----
-
-# 4. Core Banking Services
-
-The platform is organized into independent services.
-
-## 4.1 Customer Service
-
-Responsible for customer-related functionality.
-
-Typical responsibilities include:
-
-- Customer registration
-- Customer information
-- Customer lookup
-- Customer lifecycle management
-
----
-
-## 4.2 Account Service
-
-Responsible for bank account functionality.
-
-Typical responsibilities include:
-
-- Account creation
-- Account lookup
-- Account status
-- Account ownership
-- Account balances
-
----
-
-## 4.3 Transaction Service
-
-Responsible for financial transaction processing.
-
-Typical responsibilities include:
-
-- Deposits
-- Withdrawals
-- Transfers
-- Transaction validation
-- Transaction history
-- Transaction state management
-
-Financial transaction processing should be treated as a critical workload requiring strong consistency, auditability, idempotency, and security.
-
----
-
-## 4.4 Notification Service
-
-Responsible for customer notifications.
-
-Potential notification channels include:
-
-- Email
-- SMS
-- Push notifications
-
-The service is separated from transaction processing so that notification workloads do not unnecessarily block core banking operations.
-
----
-
-# 5. Technology Stack
-
-| Category | Technology |
+| Channel | Purpose |
 |---|---|
-| Language | Java 21 |
-| Framework | Spring Boot |
-| Build Tool | Maven |
-| Database | PostgreSQL |
-| Container Runtime | Docker |
+| Internet Banking Web | Customer web access to accounts, balances, transaction history, transfers, and payments |
+| Mobile Banking | Customer banking experience on mobile devices using governed platform APIs |
+| Branch Banking | Staff workflows for customer servicing and branch operations |
+| Teller Interface | Controlled counter operations, cash transactions, teller sessions, and approvals |
+
+Channel applications are presentation and interaction layers. Authorization and financial rules are enforced by backend services.
+
+Branch deployments may require secure edge capabilities for connectivity-constrained environments. Any offline operation that can affect financial state must use explicit synchronization, conflict handling, and duplicate-prevention controls.
+
+## Banking Domain Capabilities
+
+The target banking domain includes:
+
+| Capability | Primary responsibility |
+|---|---|
+| Customer and Onboarding | Registration, application review, approval, activation, customer profile and lifecycle |
+| Account | Account creation, ownership, status, product association, and account inquiry |
+| Transaction Processing | Validation, authorization coordination, transaction state, idempotency, and posting orchestration |
+| Payment | Payment initiation, provider adapters, callbacks, status management, and payment references |
+| Deposit Operations | Deposit workflows across digital, branch, teller, and supported external channels |
+| Withdrawal Operations | Withdrawal validation, limits, authorization, posting, and confirmation |
+| Teller Operations | Teller sessions, tills, cash drawers, limits, supervisor approval, and balancing |
+| Branch Operations | Branch configuration, staff context, operating controls, and branch reporting |
+| Notification | Event-driven email, SMS, and push delivery |
+
+### Financial control and assurance
+
+The broader platform includes the following capabilities:
+
+- **General Ledger:** balanced debit and credit journals, controlled financial postings, immutable posting history, and traceability to originating transactions.
+- **Reconciliation:** comparison of internal transactions and ledger records against provider, settlement, and operational records.
+- **Fraud and Risk:** transaction risk evaluation, velocity controls, unusual activity detection, and review workflows.
+- **KYC and Compliance:** customer due diligence, identity verification, documentation, screening, and risk classification.
+- **Audit:** traceable records of financial and security-sensitive actions.
+- **Standing Orders and Scheduled Payments:** recurring and future-dated payment instructions.
+- **Cash and Vault Management:** branch cash positions, teller cash movements, vault balances, and replenishment controls.
+- **Fees, Charges, and Interest:** configurable charges, waivers, interest calculations, and accounting treatment.
+- **Customer Service and Disputes:** service requests, complaints, disputes, and investigation workflows.
+
+Deposits and withdrawals are documented as distinct banking operations. Their final implementation boundaries may be workflows within transaction processing or separately deployed services where justified. All financial effects must pass through controlled posting and ledger rules.
+
+## Financial Integrity and Control
+
+Financial integrity is a core platform requirement:
+
+- Financial postings are controlled by the ledger; channel applications never update balances directly.
+- Double-entry journal postings must balance.
+- Idempotency prevents retries from creating duplicate financial effects.
+- Transaction states and permitted transitions are explicit.
+- Posted financial records are corrected through traceable reversals or adjustments, not destructive edits.
+- Customer, staff, teller, branch, and transaction limits are enforced server-side.
+- Correlation and transaction references connect channel requests, service processing, provider responses, and ledger postings.
+- Internal records are reconciled with external providers and settlement records.
+
+## Technology Stack
+
+The platform uses the following technology foundation. Exact versions and component status should be maintained in the relevant implementation documentation and repository manifests.
+
+| Area | Technology / Direction |
+|---|---|
+| Application language | Java 21 |
+| Application framework | Spring Boot |
+| Build | Maven |
+| Frontend | React, TypeScript, Vite |
+| Relational data | PostgreSQL |
+| Database migrations | Flyway where configured |
+| Containerization | Docker |
 | Orchestration | Kubernetes |
-| Local Kubernetes | Minikube |
-| Packaging | Helm |
+| Production Kubernetes target | Amazon EKS |
+| Application packaging | Helm |
 | Infrastructure as Code | Terraform |
+| CI/CD | GitHub Actions |
+| Container registry | GitHub Container Registry (GHCR) |
 | GitOps | Argo CD |
-| CI/CD | GitHub-based pipeline |
-| Monitoring | Prometheus / Metrics Server / monitoring stack |
-| Source Control | Git / GitHub |
-| Operating Environment | Linux containers |
-| Local Development | Windows + Docker Desktop + Minikube |
-
-> The exact versions and deployed components should be kept synchronized with the repository as the platform evolves.
-
----
-
-# 6. Repository Structure
-
-The repository is organized around applications and platform infrastructure.
-
-```text
-baraza-banking-platform1/
-│
-├── applications/
-│   │
-│   ├── account-service/
-│   │   ├── src/
-│   │   ├── pom.xml
-│   │   └── Dockerfile
-│   │
-│   ├── customer-service/
-│   │   ├── src/
-│   │   ├── pom.xml
-│   │   └── Dockerfile
-│   │
-│   ├── transaction-service/
-│   │   ├── src/
-│   │   ├── pom.xml
-│   │   └── Dockerfile
-│   │
-│   └── notification-service/
-│       ├── src/
-│       ├── pom.xml
-│       └── Dockerfile
-│
-├── infrastructure/
-│   │
-│   ├── kubernetes/
-│   │
-│   ├── helm/
-│   │
-│   ├── terraform/
-│   │
-│   └── monitoring/
-│
-├── docs/
-│
-├── .github/
-│   └── workflows/
-│
-├── README.md
-└── ...
-```
-
-The exact repository structure may change as the platform develops.
-
----
-
-# 7. Application Architecture
-
-Each business capability is implemented as an independently deployable service.
-
-```text
-                  ┌──────────────────────┐
-                  │   Customer Service   │
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                  ┌──────────────────────┐
-                  │    Account Service   │
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                  ┌──────────────────────┐
-                  │ Transaction Service  │
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                  ┌──────────────────────┐
-                  │ Notification Service │
-                  └──────────────────────┘
-```
-
-The microservice model provides:
-
-- Independent deployment
-- Independent scaling
-- Service isolation
-- Clear ownership boundaries
-- Failure isolation
-- Technology flexibility
-- Easier evolution of individual capabilities
-
----
-
-# 8. Containerization
-
-Every application is packaged as a container image.
-
-A typical runtime architecture is:
-
-```text
-Source Code
-    │
-    ▼
-Maven Build
-    │
-    ▼
-JAR
-    │
-    ▼
-Docker Image
-    │
-    ▼
-Container Registry
-    │
-    ▼
-Kubernetes Pod
-```
-
-The services use a Java runtime image such as:
-
-```text
-eclipse-temurin:21-jre
-```
-
-Containers should run as a non-root user wherever possible.
-
-Example:
-
-```dockerfile
-USER 1001
-```
-
-This reduces the impact of a container compromise.
-
----
-
-# 9. Kubernetes Platform
-
-Kubernetes is responsible for orchestrating the application workloads.
-
-The platform uses Kubernetes resources including:
-
-- Namespace
-- Deployment
-- ReplicaSet
-- Pod
-- Service
-- Ingress
-- ConfigMap
-- Secret
-- HorizontalPodAutoscaler
-
-Example deployment relationship:
-
-```text
-Deployment
-     │
-     ▼
-ReplicaSet
-     │
-     ├── Pod
-     ├── Pod
-     └── Pod
-```
-
-The Deployment manages the desired state of the application.
-
----
-
-# 10. Helm
-
-Helm is used to package and template Kubernetes resources.
-
-Instead of maintaining separate hard-coded manifests for every environment, configuration is parameterized.
-
-For example:
-
-```yaml
-replicaCount: 2
-```
-
-The deployment template can reference:
-
-```yaml
-spec:
-  replicas: {{ .Values.replicaCount }}
-```
-
-Helm renders the template into a Kubernetes manifest:
-
-```yaml
-spec:
-  replicas: 2
-```
-
-The resulting manifest is then submitted to Kubernetes.
-
-The flow is:
-
-```text
-values.yaml
-     │
-     ▼
-Helm Template
-     │
-     ▼
-Rendered Manifest
-     │
-     ▼
-Kubernetes API
-     │
-     ▼
-Deployment
-```
-
----
-
-# 11. Environment Configuration
-
-The platform supports environment-specific configuration.
-
-Typical environments include:
-
-```text
-Development
-     │
-     ▼
-Staging
-     │
-     ▼
-Production
-```
-
-Configuration can include:
-
-- Replica count
-- Image tag
-- Service configuration
-- Resource requests
-- Resource limits
-- Ingress hostname
-- Probe configuration
-- Environment variables
-
-Example:
-
-```text
-values-dev.yaml
-values-prod.yaml
-```
-
-The application code remains the same while environment-specific configuration changes through deployment configuration.
-
----
-
-# 12. Database
-
-PostgreSQL is used as the relational database.
-
-The database layer is responsible for persistent application state.
-
-The architecture separates:
-
-```text
-Application Layer
-       │
-       ▼
-Persistence Layer
-       │
-       ▼
-PostgreSQL
-```
-
-Database credentials should never be hard-coded into application source code.
-
-Kubernetes Secrets or a dedicated external secrets-management solution should be used for sensitive credentials.
-
----
-
-# 13. Networking
-
-Kubernetes Services provide stable networking for workloads.
-
-A simplified networking model is:
-
-```text
-Client
-  │
-  ▼
-Ingress
-  │
-  ▼
-Service
-  │
-  ▼
-Pods
-```
-
-Pods are ephemeral and can be replaced at any time.
-
-The Kubernetes Service provides a stable abstraction over those Pods.
-
----
-
-# 14. Health Checks and Reliability
-
-Applications should expose health information that Kubernetes can use to determine application state.
-
-The platform uses Kubernetes probes including:
-
-### Startup Probe
-
-Determines whether the application has successfully started.
-
-```text
-Container starts
-      │
-      ▼
-Startup Probe
-      │
-      ├── Failure → Kubernetes waits/restarts according to policy
-      │
-      └── Success
-             │
-             ▼
-        Liveness/Readiness
-```
-
-### Liveness Probe
-
-Determines whether the application is still alive.
-
-### Readiness Probe
-
-Determines whether the application is ready to receive traffic.
-
-This prevents traffic from being sent to an application that has started its process but is not yet ready.
-
----
-
-# 15. Horizontal Pod Autoscaling
-
-Horizontal Pod Autoscaling allows Kubernetes to adjust the number of Pods based on resource utilization.
-
-The relationship is:
-
-```text
-Metrics Server
-      │
-      ▼
-     HPA
-      │
-      ▼
-Deployment replicas
-      │
-      ▼
-     Pods
-```
-
-For example:
-
-```text
-MINPODS = 2
-MAXPODS = 5
-CPU target = 70%
-Memory target = 80%
-```
-
-If workload increases and the configured utilization thresholds are exceeded, the HPA can increase the number of replicas.
-
-If demand decreases, Kubernetes can reduce replicas subject to the HPA policy.
-
-The Deployment's desired replica count and HPA behavior should therefore be understood together.
-
----
-
-# 16. Infrastructure as Code
-
-Terraform is used to define infrastructure declaratively.
-
-The intended infrastructure lifecycle is:
-
-```text
-Terraform Code
-      │
-      ▼
-terraform plan
-      │
-      ▼
-Review
-      │
-      ▼
-terraform apply
-      │
-      ▼
-Infrastructure
-```
-
-Infrastructure as Code provides:
-
-- Repeatability
-- Version control
-- Reviewability
-- Consistency
-- Automation
-- Disaster recovery capability
-
-The Terraform layer can eventually manage cloud infrastructure including:
-
-- VPC
-- Subnets
-- Security Groups
-- IAM
-- Kubernetes cluster
-- Load balancers
-- Databases
-- Monitoring infrastructure
-
----
-
-# 17. CI/CD
-
-The CI/CD pipeline automates application delivery.
-
-A typical pipeline is:
-
-```text
-Developer
-    │
-    ▼
-Git Push
-    │
-    ▼
-CI Pipeline
-    │
-    ├── Compile
-    ├── Unit Tests
-    ├── Integration Tests
-    ├── Package
-    ├── Security Scanning
-    └── Docker Build
-            │
-            ▼
-      Container Registry
-```
-
-CI should prevent defective code from reaching deployment environments.
-
----
-
-# 18. GitOps and Argo CD
-
-GitOps makes Git the source of truth for the desired deployment state.
-
-The intended model is:
-
-```text
-Developer
-    │
-    ▼
-Git Repository
-    │
-    ▼
-Kubernetes Manifests / Helm
-    │
-    ▼
-Argo CD
-    │
-    ▼
-Kubernetes
-```
-
-Argo CD continuously compares:
-
-```text
-Desired State
-     VS
-Actual State
-```
-
-If the cluster differs from the desired state, Argo CD can synchronize the environment according to the configured policy.
-
-This provides:
-
-- Declarative deployments
-- Auditability
-- Version history
-- Rollback capability
-- Drift detection
-- Reproducibility
-
----
-
-# 19. Monitoring and Observability
-
-The platform is designed to provide visibility into application and infrastructure health.
-
-Observability should cover:
-
-### Metrics
-
-Examples:
-
-- CPU utilization
-- Memory utilization
-- Request rates
-- Error rates
-- Latency
-- Pod count
-- HPA activity
-
-### Logs
-
-Application and Kubernetes logs should be centrally accessible.
-
-### Health
-
-Health endpoints and Kubernetes probes provide application health information.
-
-The observability architecture can evolve toward:
-
-```text
-Applications
-     │
-     ├── Metrics
-     ├── Logs
-     └── Traces
-          │
-          ▼
-   Observability Stack
-          │
-          ▼
-       Dashboards
-```
-
----
-
-# 20. Security
-
-Security is treated as a platform concern rather than only an application concern.
-
-Key security areas include:
-
-### Container Security
-
-- Minimal runtime images
-- Non-root containers
-- Image scanning
-- Dependency scanning
-- Controlled image versions
-
-### Kubernetes Security
-
-- RBAC
-- Service Accounts
-- Namespace isolation
-- Network Policies
-- Pod Security
-- Secret management
-
-### Application Security
-
-- Authentication
-- Authorization
-- Input validation
-- Secure API design
-- Dependency management
-
-### Infrastructure Security
-
-- Least privilege IAM
-- Network segmentation
-- Private workloads
-- Encryption
-- Secure secrets management
-
----
-
-# 21. Local Development Environment
-
-The platform can be developed locally using:
-
-- Windows
-- Docker Desktop
-- Minikube
-- kubectl
-- Helm
-- Maven
-- Java 21
-- Git
-
-Verify Java:
-
-```powershell
-java -version
-```
-
-Verify Maven:
-
-```powershell
-mvn -version
-```
-
-Verify Docker:
-
-```powershell
-docker version
-```
-
-Verify Kubernetes:
-
-```powershell
-kubectl version
-```
-
-Verify Helm:
-
-```powershell
-helm version
-```
-
-Verify Minikube:
-
-```powershell
-minikube version
-```
-
----
-
-# 22. Running the Platform
-
-Start Minikube:
-
-```powershell
-minikube start --driver=docker
-```
-
-Verify the cluster:
-
-```powershell
-kubectl get nodes
-```
-
-Expected result:
-
-```text
-NAME       STATUS   ROLES           AGE
-minikube   Ready    control-plane   ...
-```
-
-Create or verify the namespace:
-
-```powershell
-kubectl get namespaces
-```
-
----
-
-# 23. Building the Applications
-
-Navigate to an application:
-
-```powershell
-cd applications\customer-service
-```
-
-Build the application:
-
-```powershell
-mvn clean package
-```
-
-Skip tests when specifically required:
-
-```powershell
-mvn clean package -DskipTests
-```
-
-The resulting JAR is normally located under:
-
-```text
-target/
-```
-
-Tests should preferably remain enabled in CI.
-
----
-
-# 24. Building Docker Images
-
-Build an application image:
-
-```powershell
-docker build -t customer-service:v3 .
-```
-
-Verify:
-
-```powershell
-docker images
-```
-
-The image should appear in the local Docker image repository.
-
----
-
-# 25. Deploying to Kubernetes
-
-For local Minikube development, images can be made available to the cluster.
-
-One approach is:
-
-```powershell
-minikube image load customer-service:v3
-```
-
-Verify the image:
-
-```powershell
-minikube image ls
-```
-
-Kubernetes can then use the locally available image.
-
----
-
-# 26. Helm Deployment
-
-List Helm releases:
-
-```powershell
-helm list -A
-```
-
-Install a chart:
-
-```powershell
-helm install customer-service ./helm/customer-service \
-  -n baraza-banking \
-  --create-namespace
-```
-
-Upgrade an existing release:
-
-```powershell
-helm upgrade customer-service ./helm/customer-service \
-  -n baraza-banking
-```
-
-Inspect the release:
-
-```powershell
-helm status customer-service -n baraza-banking
-```
-
-Render the manifests without deploying:
-
-```powershell
-helm template customer-service ./helm/customer-service \
-  -n baraza-banking
-```
-
-This is particularly useful for debugging Helm templates.
-
----
-
-# 27. GitOps Deployment
-
-In a GitOps environment:
-
-```text
-Developer
-    │
-    ▼
-Git Commit
-    │
-    ▼
-Pull Request
-    │
-    ▼
-Review
-    │
-    ▼
-Merge
-    │
-    ▼
-Git Repository
-    │
-    ▼
-Argo CD
-    │
-    ▼
-Kubernetes
-```
-
-Argo CD becomes responsible for applying the desired state.
-
-The cluster should therefore not be manually modified as the normal production deployment mechanism.
-
-Manual `kubectl` changes may cause configuration drift.
-
----
-
-# 28. Verification
-
-After deployment:
-
-```powershell
-kubectl get pods -n baraza-banking
-```
-
-Check deployments:
-
-```powershell
-kubectl get deployments -n baraza-banking
-```
-
-Check services:
-
-```powershell
-kubectl get services -n baraza-banking
-```
-
-Check ingress:
-
-```powershell
-kubectl get ingress -n baraza-banking
-```
-
-Check HPA:
-
-```powershell
-kubectl get hpa -n baraza-banking
-```
-
-Check detailed Pod information:
-
-```powershell
-kubectl describe pod <pod-name> -n baraza-banking
-```
-
-Check logs:
-
-```powershell
-kubectl logs <pod-name> -n baraza-banking
-```
-
----
-
-# 29. Troubleshooting
-
-## 29.1 ImagePullBackOff
-
-Check:
-
-```powershell
-kubectl get pods -n baraza-banking
-```
-
-Then:
-
-```powershell
-kubectl describe pod <pod-name> -n baraza-banking
-```
-
-Look at the Events section.
-
-Common causes include:
-
-- Image does not exist
-- Incorrect image tag
-- Image registry authentication failure
-- Incorrect image name
-- Kubernetes cannot access the registry
-- Local Minikube image not loaded
-
----
-
-## 29.2 CreateContainerConfigError
-
-Inspect the Pod:
-
-```powershell
-kubectl describe pod <pod-name> -n baraza-banking
-```
-
-Common causes include:
-
-- Missing Secret
-- Missing ConfigMap
-- Incorrect environment variable reference
-- Invalid configuration
-- Missing required Kubernetes resource
-
----
-
-## 29.3 CrashLoopBackOff
-
-Check logs:
-
-```powershell
-kubectl logs <pod-name> -n baraza-banking
-```
-
-For the previous crashed container:
-
-```powershell
-kubectl logs <pod-name> -n baraza-banking --previous
-```
-
-Inspect:
-
-```powershell
-kubectl describe pod <pod-name> -n baraza-banking
-```
-
----
-
-## 29.4 Service Not Reachable
-
-Check:
-
-```powershell
-kubectl get svc -n baraza-banking
-```
-
-Then verify endpoints:
-
-```powershell
-kubectl get endpoints -n baraza-banking
-```
-
-Verify Pod labels:
-
-```powershell
-kubectl get pods -n baraza-banking --show-labels
-```
-
-A Service selector must correctly match the labels on the Pods.
-
----
-
-## 29.5 HPA Not Scaling
-
-Check:
-
-```powershell
-kubectl get hpa -n baraza-banking
+| Observability direction | Prometheus, Grafana, OpenTelemetry, centralized logs and traces |
+| Source control | Git and GitHub |
+
+## Platform Engineering Architecture
+
+The application delivery model is designed around automated, traceable changes.
+
+```mermaid
+flowchart LR
+    SOURCE["Source Changes"] --> GIT["GitHub"]
+    GIT --> ACTIONS["GitHub Actions"]
+    ACTIONS --> BUILD["Build and Test"]
+    BUILD --> QUALITY["Quality and Security Validation"]
+    QUALITY --> IMAGE["Versioned Container Image"]
+    IMAGE --> GHCR["GHCR"]
+    GHCR --> CONFIG["GitOps Configuration"]
+    CONFIG --> ARGO["Argo CD"]
+    ARGO --> K8S["Kubernetes / Amazon EKS"]
+    K8S --> VERIFY["Deployment Verification"]
+    VERIFY --> OBS["Metrics, Logs, Traces and Alerts"]
 ```
-
-Check metrics:
-
-```powershell
-kubectl top pods -n baraza-banking
-```
-
-Check:
-
-```powershell
-kubectl top nodes
-```
-
-If metrics are unavailable, investigate Metrics Server.
-
-The relationship is:
-
-```text
-Metrics Server
-       │
-       ▼
-     Metrics
-       │
-       ▼
-      HPA
-       │
-       ▼
-Deployment replicas
-```
-
----
-
-## 29.6 PostgreSQL Connectivity Problems
-
-Check PostgreSQL Pods:
-
-```powershell
-kubectl get pods -n baraza-banking
-```
-
-Check logs:
-
-```powershell
-kubectl logs <postgres-pod> -n baraza-banking
-```
-
-Check Service:
-
-```powershell
-kubectl get svc -n baraza-banking
-```
-
-Check configuration and Secrets:
-
-```powershell
-kubectl get secrets -n baraza-banking
-```
-
-Never expose database credentials in logs or source control.
-
----
-
-## 29.7 Port Forwarding
-
-For local database access:
-
-```powershell
-kubectl port-forward svc/postgres 5432:5432 -n baraza-banking
-```
-
-The local machine can then connect to:
-
-```text
-localhost:5432
-```
-
-If port forwarding fails, verify:
-
-```powershell
-kubectl get pods -n baraza-banking
-kubectl get svc -n baraza-banking
-kubectl get endpoints -n baraza-banking
-```
-
-Also verify that the Kubernetes API server and Minikube cluster are healthy.
-
----
-
-# 30. Production Architecture
-
-The long-term production architecture is intended to evolve toward a cloud environment.
-
-A conceptual AWS deployment could look like:
-
-```text
-                         Internet
-                            │
-                            ▼
-                    Route 53 / DNS
-                            │
-                            ▼
-                    Load Balancer
-                            │
-                            ▼
-                  Kubernetes / EKS
-                            │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-        ▼                   ▼                   ▼
- Customer Service     Account Service    Transaction Service
-        │                   │                   │
-        └───────────────────┼───────────────────┘
-                            │
-                            ▼
-                     Notification
-                       Service
-                            │
-                            ▼
-                    Managed Database
-                       PostgreSQL
-```
-
-Supporting infrastructure would include:
-
-```text
-AWS
-│
-├── VPC
-├── Public/Private Subnets
-├── Security Groups
-├── IAM
-├── EKS
-├── Load Balancer
-├── PostgreSQL
-├── Monitoring
-├── Logging
-└── Secrets Management
-```
-
----
-
-# 31. Banking and Regulatory Considerations
-
-Because Baraza represents a banking workload, production implementation must consider financial-sector requirements.
-
-Areas include:
-
-### Data Protection
-
-- Encryption at rest
-- Encryption in transit
-- Secure key management
-- Data classification
-
-### Access Control
-
-- Least privilege
-- Strong authentication
-- Role-based access
-- Privileged access management
-
-### Auditability
-
-Financial operations should produce immutable and traceable audit records.
-
-### Transaction Integrity
-
-Transactions should support:
-
-- Idempotency
-- Atomicity
-- Consistency
-- Concurrency control
-- Duplicate transaction protection
-- Reliable transaction state management
-
-### Compliance
-
-A production banking implementation may need to address applicable requirements such as:
-
-- PCI DSS
-- SOC controls
-- Data protection regulations
-- Banking regulations
-- Internal security policies
-- Audit requirements
-
-Compliance requirements must be validated against the actual jurisdiction and deployment environment.
-
----
-
-# 32. Disaster Recovery
-
-A production banking platform must be designed for failure.
-
-Potential failure scenarios include:
-
-- Pod failure
-- Node failure
-- Availability Zone failure
-- Database failure
-- Application failure
-- Network failure
-- Deployment failure
-- Configuration error
-
-Recovery mechanisms include:
-
-```text
-Application
-    │
-    ├── Kubernetes ReplicaSets
-    ├── Health Checks
-    ├── HPA
-    └── Rolling Updates
-
-Infrastructure
-    │
-    ├── Multiple Nodes
-    ├── Multiple Availability Zones
-    └── Infrastructure as Code
-
-Database
-    │
-    ├── Backups
-    ├── Replication
-    └── Recovery Procedures
-```
-
-Recovery objectives should eventually be defined using:
-
-- RTO — Recovery Time Objective
-- RPO — Recovery Point Objective
-
----
-
-# 33. Development Workflow
-
-The preferred development workflow is:
-
-```text
-1. Create Feature Branch
-          │
-          ▼
-2. Develop
-          │
-          ▼
-3. Run Tests
-          │
-          ▼
-4. Build Application
-          │
-          ▼
-5. Build Docker Image
-          │
-          ▼
-6. Security Scan
-          │
-          ▼
-7. Push Image
-          │
-          ▼
-8. Update Deployment Configuration
-          │
-          ▼
-9. Pull Request
-          │
-          ▼
-10. Code Review
-          │
-          ▼
-11. Merge
-          │
-          ▼
-12. GitOps Deployment
-          │
-          ▼
-13. Argo CD Synchronization
-          │
-          ▼
-14. Kubernetes
-          │
-          ▼
-15. Monitoring / Verification
-```
-
----
-
-# 34. Platform Engineering Principles
-
-Baraza is designed around several Platform Engineering principles.
-
-## Infrastructure as Code
-
-Infrastructure should be represented as version-controlled code.
-
-## Declarative Configuration
-
-The desired state should be explicitly defined.
-
-## Automation
-
-Manual repetitive operations should gradually be replaced with automation.
-
-## Self-Service
-
-Development teams should eventually be able to deploy services through standardized platform interfaces.
-
-## Observability
-
-Systems should provide sufficient visibility to understand their behavior.
-
-## Reliability
-
-Failure should be expected and systems should recover automatically where possible.
-
-## Security by Design
-
-Security controls should be incorporated into the development and deployment lifecycle.
-
-## Reproducibility
-
-A deployment should be reproducible from version-controlled source and infrastructure definitions.
-
----
-
-# 35. Current Project Status
-
-> **This section is intentionally maintained as a living document.**
-
-### Application Layer
-
-- [x] Spring Boot foundation
-- [x] Customer Service
-- [x] Account Service
-- [ ] Transaction Service — continued development
-- [ ] Notification Service — continued development
-- [ ] Comprehensive integration testing
-
-### Containerization
-
-- [x] Dockerfiles
-- [x] Java runtime containers
-- [x] Non-root container configuration
-- [x] Docker image builds
-- [ ] Automated image vulnerability scanning
-- [ ] Production container registry strategy
-
-### Kubernetes
-
-- [x] Kubernetes cluster
-- [x] Namespace
-- [x] Deployments
-- [x] Services
-- [x] Configuration
-- [x] Health probes
-- [x] Resource requests/limits
-- [x] HPA
-- [ ] Production-grade network policies
-- [ ] Production-grade RBAC
-
-### Helm
-
-- [x] Helm chart structure
-- [x] Values configuration
-- [x] Environment-specific values
-- [x] Deployment templating
-- [x] Service templating
-- [ ] Complete charts for all services
-- [ ] Chart testing
 
 ### Infrastructure
 
-- [x] Terraform foundation
-- [ ] Complete cloud infrastructure
-- [ ] Production Kubernetes infrastructure
-- [ ] Managed database
-- [ ] Production networking
+The intended AWS foundation includes network segmentation, public entry points, private application workloads, protected data services, IAM, load balancing, managed database services, secrets management, and Kubernetes through Amazon EKS.
 
-### GitOps
+Terraform defines infrastructure declaratively. Changes are reviewed through plans before they are applied.
 
-- [x] GitOps architecture defined
-- [ ] Complete Argo CD application definitions
-- [ ] Automated synchronization
-- [ ] Production GitOps structure
+### Kubernetes and Helm
+
+Kubernetes manages workload scheduling, service discovery, health checks, configuration, resource controls, scaling, and rolling updates. Helm packages reusable application deployment templates and environment-specific values.
+
+### CI/CD and GitOps
+
+GitHub Actions provides the source-driven build and validation workflow. Versioned images are published to the container registry. Argo CD reconciles the desired Kubernetes state declared in Git.
 
 ### Observability
 
-- [x] Kubernetes metrics foundation
-- [x] HPA metrics
-- [ ] Complete Prometheus implementation
-- [ ] Grafana dashboards
-- [ ] Centralized logging
-- [ ] Distributed tracing
+The target observability model combines infrastructure and application metrics, structured logs, distributed traces, Kubernetes events, and business-level operational signals. Dashboards and alerts should support both technical diagnosis and banking operations.
 
----
+## Repository Structure
 
-# 36. Roadmap
-
-## Phase 1 — Application Platform
-
-- [x] Customer Service
-- [x] Account Service
-- [ ] Transaction Service
-- [ ] Notification Service
-- [ ] API integration
-- [ ] Automated testing
-
-## Phase 2 — Kubernetes Platform
-
-- [x] Deployments
-- [x] Services
-- [x] Configuration
-- [x] Probes
-- [x] Resource management
-- [x] HPA
-- [ ] Network Policies
-- [ ] RBAC hardening
-
-## Phase 3 — Helm
-
-- [x] Initial chart
-- [x] Values files
-- [x] Environment configuration
-- [ ] Standardized charts
-- [ ] Chart validation
-
-## Phase 4 — CI/CD
-
-- [ ] Automated Maven builds
-- [ ] Automated testing
-- [ ] Docker image builds
-- [ ] Image scanning
-- [ ] Registry publishing
-- [ ] Deployment automation
-
-## Phase 5 — GitOps
-
-- [ ] Argo CD applications
-- [ ] Automated synchronization
-- [ ] Environment promotion
-- [ ] Drift detection
-- [ ] Rollback workflows
-
-## Phase 6 — Infrastructure
-
-- [ ] Terraform AWS infrastructure
-- [ ] VPC
-- [ ] EKS
-- [ ] Managed PostgreSQL
-- [ ] IAM
-- [ ] Load balancing
-- [ ] Secrets management
-
-## Phase 7 — Observability
-
-- [ ] Prometheus
-- [ ] Grafana
-- [ ] Centralized logging
-- [ ] Alerting
-- [ ] Distributed tracing
-- [ ] SLO/SLI definitions
-
-## Phase 8 — Production Hardening
-
-- [ ] Security scanning
-- [ ] Network policies
-- [ ] Pod security
-- [ ] Backup and recovery
-- [ ] Disaster recovery
-- [ ] High availability
-- [ ] Compliance controls
-- [ ] Performance testing
-
----
-
-# 37. Future Improvements
-
-Future iterations of Baraza may include:
-
-### API Gateway
-
-Introduce a dedicated API gateway for:
-
-- Authentication
-- Routing
-- Rate limiting
-- API policies
-- Request transformation
-
-### Event-Driven Architecture
-
-Introduce messaging infrastructure such as:
+The repository is organized around independently maintained application and platform components. The exact tree evolves as capabilities are added.
 
 ```text
-Transaction Service
-       │
-       ▼
- Message Broker
-       │
-       ├── Notification
-       ├── Audit
-       └── Analytics
+baraza-banking-platform/
+├── applications/
+│   ├── customer-service/
+│   ├── account-service/
+│   ├── transaction-service/
+│   ├── notification-service/
+│   ├── baraza-payment/
+│   └── internet-banking-web/
+├── infrastructure/
+│   └── terraform-aws/
+├── docs/
+│   ├── architecture.md
+│   ├── platform-overview.md
+│   ├── database.md
+│   ├── docker.md
+│   ├── kubernetes.md
+│   ├── helm.md
+│   ├── terraform.md
+│   ├── ci-cd.md
+│   ├── gitops-argocd.md
+│   ├── security.md
+│   ├── monitoring.md
+│   ├── operations.md
+│   ├── troubleshooting.md
+│   └── runbooks/
+├── .github/
+│   └── workflows/
+└── README.md
 ```
 
-### Service Observability
+The tree is a guide to the repository's organization, not a guarantee that every future service or documentation file already exists.
 
-Add:
+## Application Development
 
-- OpenTelemetry
-- Distributed tracing
-- Application metrics
-- Correlation IDs
+Backend services are built with Java, Spring Boot, and Maven. The Internet Banking Web application is built with React, TypeScript, and Vite.
 
-### Security
-
-Introduce:
-
-- External secrets management
-- Container image signing
-- Software supply-chain security
-- Policy as Code
-- Runtime security
-
-### Platform Automation
-
-Introduce reusable platform components for:
-
-- New services
-- New environments
-- Standard deployments
-- Standard monitoring
-- Standard security policies
-
----
-
-# 38. Documentation
-
-Detailed documentation will be maintained under:
-
-```text
-docs/
-```
-
-Planned documentation includes:
-
-```text
-docs/
-│
-├── architecture.md
-├── platform-overview.md
-├── kubernetes.md
-├── helm.md
-├── docker.md
-├── terraform.md
-├── gitops-argocd.md
-├── ci-cd.md
-├── monitoring.md
-├── security.md
-├── networking.md
-├── database.md
-├── troubleshooting.md
-│
-└── runbooks/
-    ├── deployment.md
-    ├── rollback.md
-    ├── image-management.md
-    └── kubernetes-debugging.md
-```
-
-The README serves as the high-level entry point while the `docs/` directory contains detailed technical procedures.
-
----
-
-# 39. Contributing
-
-Development should follow the standard Git workflow.
-
-```text
-Feature Branch
-      │
-      ▼
-Development
-      │
-      ▼
-Tests
-      │
-      ▼
-Pull Request
-      │
-      ▼
-Code Review
-      │
-      ▼
-Merge
-```
-
-Before submitting changes:
+Typical backend validation from a service directory:
 
 ```powershell
 mvn clean test
+mvn clean package
 ```
 
-Application-specific validation should also be performed.
+Build the frontend from its application directory using the repository's package scripts:
 
-Infrastructure changes should be reviewed before applying them to shared environments.
+```powershell
+npm install
+npm run build
+```
 
----
+Application-specific setup, configuration, and test instructions belong in the relevant service documentation.
 
-# 40. License
+## Local Development and Verification
 
-This project is currently intended as a development, learning, and portfolio platform.
+Local environments are used for development, integration, and verification. They are not the production architecture.
 
-The licensing model should be defined before the platform is distributed publicly or used commercially.
+Typical workstation tools include Java 21, Maven, Node.js/npm, Docker, kubectl, Helm, and a local Kubernetes environment where required.
 
----
+Verify installed tools:
 
-## Project Vision
+```powershell
+java -version
+mvn -version
+node --version
+npm --version
+docker version
+kubectl version --client
+helm version
+```
 
-Baraza Banking Platform is intended to evolve beyond a simple Spring Boot application.
+For local Kubernetes work, verify the active context and cluster before applying changes:
 
-The long-term objective is to demonstrate a complete modern banking technology platform:
+```powershell
+kubectl config current-context
+kubectl get nodes
+kubectl get namespaces
+```
+
+Build a backend service image from its application directory:
+
+```powershell
+docker build -t baraza-service:dev .
+docker images
+```
+
+Inspect Kubernetes workloads in the namespace used by the deployment:
+
+```powershell
+kubectl get deployments,pods,services -n baraza-banking
+kubectl get events -n baraza-banking --sort-by=.metadata.creationTimestamp
+```
+
+The exact namespace, chart path, image name, and environment values must be taken from the relevant deployment configuration. Do not assume that one command or chart path applies to every service.
+
+Detailed workstation and service procedures are maintained under [docs](docs/).
+
+## Production Deployment Direction
+
+Amazon EKS is the intended AWS production Kubernetes environment. The target production topology separates public ingress, private application workloads, and protected data services across appropriate network boundaries.
+
+A conceptual deployment path is:
 
 ```text
-                    BARAZA BANKING PLATFORM
-                              │
-          ┌───────────────────┼───────────────────┐
-          │                   │                   │
-          ▼                   ▼                   ▼
-     APPLICATIONS        PLATFORM            INFRASTRUCTURE
-          │                   │                   │
-          ▼                   ▼                   ▼
-    Spring Boot          Kubernetes           Terraform
-    Java 21              Helm                  Cloud
-    PostgreSQL           Argo CD               Networking
-    REST APIs             GitOps               IAM
-          │                   │                   │
-          └───────────────────┼───────────────────┘
-                              │
-                              ▼
-                    CI/CD + SECURITY
-                              │
-                              ▼
-                    OBSERVABILITY
-                              │
-                              ▼
-                     RELIABLE PLATFORM
+Customers and Staff
+        |
+        v
+DNS / Edge Protection / Load Balancing
+        |
+        v
+API Gateway and Ingress
+        |
+        v
+Amazon EKS Private Workloads
+        |
+        +---- Banking Domain Services
+        |
+        +---- Integration and Event Processing
+        |
+        v
+Protected Data Services
+        |
+        +---- PostgreSQL
+        +---- Ledger and Audit Data
 ```
 
-The project will continuously evolve toward a production-grade cloud-native banking platform demonstrating:
+Production readiness also requires tested database recovery, secrets management, access controls, availability design, capacity planning, monitoring, incident response, and disaster recovery procedures. Cloud deployment and production operation must be supported by deployed infrastructure and verification evidence; architecture documentation alone does not imply that an environment is already running.
 
-**Software Engineering + DevOps + Platform Engineering + Cloud Engineering + Security + Observability + GitOps.**
+## Security, Reliability, and Operations
+
+The platform is designed to apply security and reliability controls across the full request and delivery lifecycle.
+
+**Security**
+- Customer and workforce authentication and authorization.
+- Role-based and contextual access controls.
+- Least-privilege service identities and cloud IAM.
+- Encryption in transit and at rest.
+- Secrets management and credential rotation.
+- Network segmentation and restricted service communication.
+- Container, dependency, and software supply-chain security.
+- Protected audit trails and controlled administrative access.
+
+**Reliability**
+- Health checks and readiness-based traffic routing.
+- Resource requests, limits, and workload scaling policies.
+- Timeouts, bounded retries, circuit breakers, and idempotency.
+- Graceful startup and shutdown.
+- Database backup and tested restoration.
+- Deployment rollback and configuration recovery.
+- Defined recovery time and recovery point objectives.
+
+**Operations**
+- Metrics, structured logs, distributed traces, and correlation identifiers.
+- Business signals such as payment outcomes, transaction failures, reconciliation exceptions, and teller balancing differences.
+- Actionable alerts linked to operational runbooks.
+- Controlled release, incident, change, and recovery processes.
+
+Regulatory obligations depend on the institution, jurisdiction, payment methods, and deployment context. Applicable requirements must be assessed and validated rather than assumed.
+
+## Documentation
+
+The README is the entry point to the platform. Detailed technical and operational material is maintained in the `docs/` directory.
+
+| Document | Coverage |
+|---|---|
+| [Platform Overview](docs/platform-overview.md) | Platform purpose, target capabilities, engineering principles |
+| [Architecture](docs/architecture.md) | Service boundaries, interactions, workflows, and deployment architecture |
+| [Database](docs/database.md) | Data ownership, schemas, migrations, and financial data integrity |
+| [Workstation Setup](docs/workstation-setup.md) | Development environment prerequisites and setup |
+| [Docker](docs/docker.md) | Container builds, runtime, and image conventions |
+| [Kubernetes](docs/kubernetes.md) | Cluster resources, workload management, and networking |
+| [Helm](docs/helm.md) | Charts, templates, and environment values |
+| [Terraform](docs/terraform.md) | AWS infrastructure as code |
+| [CI/CD](docs/ci-cd.md) | Build, test, validation, and image publishing |
+| [GitOps and Argo CD](docs/gitops-argocd.md) | Desired state, synchronization, and drift management |
+| [Security](docs/security.md) | Application, container, Kubernetes, and cloud security |
+| [Monitoring](docs/monitoring.md) | Metrics, logs, traces, dashboards, and alerts |
+| [Operations](docs/operations.md) | Operational standards and service management |
+| [Troubleshooting](docs/troubleshooting.md) | Diagnostic procedures |
+| [Deployment Runbook](docs/runbooks/deployment.md) | Deployment procedure |
+| [Rollback Runbook](docs/runbooks/rollback.md) | Release rollback and recovery |
+| [Image Management Runbook](docs/runbooks/image-management.md) | Image lifecycle and registry operations |
+| [Kubernetes Debugging Runbook](docs/runbooks/kubernetes-debugging.md) | Workload and cluster diagnostics |
+
+Some linked documents are being developed as part of the documentation programme.
+
+## Implementation Roadmap
+
+The target architecture is delivered incrementally. The roadmap groups work by business capability and engineering foundation; it is not a claim that every target capability is already deployed.
+
+### Banking capabilities
+- Customer onboarding, authentication, approval, and lifecycle.
+- Account management and account access controls.
+- Transaction processing and financial state management.
+- Payment integration and provider callback handling.
+- Internet Banking Web.
+- Notification delivery.
+- Mobile Banking channel.
+- Branch Banking and teller workflows.
+- Deposit and withdrawal operations.
+- General Ledger and controlled financial posting.
+- Reconciliation, fraud and risk, KYC/compliance, and audit.
+- Additional banking operations such as scheduled payments, fees, interest, and cash management.
+
+### Platform engineering
+- Standardized container builds and image lifecycle.
+- Kubernetes workload hardening and reusable Helm charts.
+- CI quality gates, automated tests, and security validation.
+- GitOps application definitions and environment promotion.
+- AWS network and EKS infrastructure through Terraform.
+- Managed database strategy, backup, and recovery.
+- Metrics, dashboards, centralized logging, tracing, and alerting.
+- Performance, resilience, security, and disaster recovery validation.
+
+Implementation status and supporting evidence should be maintained in service-specific documentation and release records as work is completed.
+
+## Engineering Principles
+
+1. **Banking domain integrity:** business rules belong to their domain services and financial postings are controlled and auditable.
+2. **Clear ownership:** services own their data and expose explicit contracts.
+3. **Secure by design:** identity, authorization, encryption, and least privilege are built into each layer.
+4. **Resilience:** failures are expected and handled through bounded retries, isolation, and recovery.
+5. **Automation:** repeatable build, test, infrastructure, and deployment activities are automated.
+6. **Declarative operations:** infrastructure and deployment intent are version-controlled.
+7. **Observability:** technical and business behavior can be measured and investigated.
+8. **Controlled change:** changes are reviewed, traceable, verifiable, and recoverable.
+9. **Evolvability:** capabilities can be extended without recreating a tightly coupled monolith.
+
+---
+
+**Baraza Banking Platform**  
+*Modernizing established banking operations through domain-driven services, secure digital channels, and cloud-native platform engineering.*
