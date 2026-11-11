@@ -1,3 +1,4 @@
+
 name: Transaction Service CI
 
 on:
@@ -5,6 +6,7 @@ on:
     paths:
       - "applications/transaction-service/**"
       - ".github/workflows/transaction-service-ci.yml"
+
   pull_request:
     paths:
       - "applications/transaction-service/**"
@@ -13,64 +15,31 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  pipeline:
+    name: Transaction Service DevSecOps Pipeline
+    uses: AndrewKMwangi/devsecops-pipeline-templates/.github/workflows/pipeline-orchestrator.yml@feature/pipeline-architecture
 
-    defaults:
-      run:
-        working-directory: applications/transaction-service
+    with:
+      app-stack: java
+      working-directory: applications/transaction-service
+      java-version: "21"
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      image-name: transaction-service
+      dockerfile: Dockerfile
+      build-context: applications/transaction-service
+      image-tag: ${{ github.sha }}
 
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-          cache: maven
+      gitops-owner: AndrewKMwangi
+      gitops-repository: baraza-banking-gitops
+      target-branch: main
+      chart-directory: transaction-service/chart
+      values-file: transaction-service/chart/values-gitops-dev.yaml
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      signing-identity: https://github.com/AndrewKMwangi/devsecops-pipeline-templates/.github/workflows/image-signing.yml@refs/heads/feature/pipeline-architecture
 
-      - name: Ensure Maven wrapper is executable
-        run: chmod +x mvnw
-
-      - name: Inspect Maven wrapper
-        run: |
-          ls -l mvnw
-          file mvnw
-          head -n 1 mvnw
-
-      - name: Run tests
-        run: ./mvnw test
-
-      - name: Package application
-        run: ./mvnw package
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./applications/transaction-service
-          load: true
-          tags: ghcr.io/andrewkmwangi/transaction-service:${{ github.sha }}
-
-      - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: ghcr.io/andrewkmwangi/transaction-service:${{ github.sha }}
-          format: table
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: os,library
-          severity: HIGH,CRITICAL
-
-      - name: Push Docker image
-        run: docker push ghcr.io/andrewkmwangi/transaction-service:${{ github.sha }}
+    secrets:
+      gitops-app-client-id: ${{ secrets.GITOPS_APP_CLIENT_ID }}
+      gitops-app-private-key: ${{ secrets.GITOPS_APP_PRIVATE_KEY }}
