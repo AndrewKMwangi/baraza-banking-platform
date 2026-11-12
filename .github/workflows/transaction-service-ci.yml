@@ -1,5 +1,6 @@
 
 # Validation trigger: consume the latest reusable DevSecOps workflow revision.
+# Validation trigger: run credential diagnostics from the latest template commit.
 name: Transaction Service CI
 
 on:
