@@ -1,4 +1,5 @@
 
+# Validation trigger: consume the latest reusable DevSecOps workflow revision.
 name: Transaction Service CI
 
 on:
